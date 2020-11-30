@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width initial-scale=1'>
+    <title> Black Box 2.0 Counter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://use.typekit.net/sts2yah.css">
+</head>
+
+<body>
+
+    <div class="header cards">
+        <div id="title">Black Box 2.0</div>
+        <div id="sub_title">Tracker Data</div>
+    </div>
+
+    <div class="data_container">
+        <div class="left cards">
+            <div id="diagnose_container">
+                Diagnose Data
+                <div id="wheel_data">
+                    <p>Wheels Rotation:</br>
+                        <span id="life_time_rotations" class="numbers">0</span>
+                        times
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="middle cards">
+            <div id="main_data_container">
+                Main Data
+                <div id="total_dist_data">
+                    <p id="total_distance">Total Distance:</p>
+                    <p id="total_distance_number">
+                        <span id="lifetime_dist" class="numbers">0</span>
+                        km
+                    </p>
+                </div>
+                <div id="line"></div>
+                <div id="sect_dist_data">
+                    <p id="section_distance">Section Distance:</p>
+                    <p id="section_distance_number">
+                        <span id="section_dist" class="numbers">0</span>
+                        km
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // calculates total distance in km given number of wheel rotations
+        function dist_calculator(rotations) {
+            const wheel_size = 10; // in cm
+            const pi = 3.14;
+            return rotations * wheel_size * pi / 1000;
+        }
+
+        function updateLifetimeData() {
+            console.log("requesting lifetime data");
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                console.log("got lifetime data response back");
+                if (this.readyState == 4 && this.status == 200) {
+                    var lifetime_rotation = this.responseText;
+                    var lifetime_dist = dist_calculator(lifetime_rotation);
+                    document.getElementById("life_time_rotations").innerHTML = lifetime_rotation;
+                    document.getElementById("lifetime_dist").innerHTML = lifetime_dist.toFixed(2);
+                }
+            };
+            xhttp.open("GET", "readLifetime", true); // <-- change on server
+            xhttp.send();
+        }
+
+        function updateSectionData() {
+            console.log("requesting section data");
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                console.log("got section data response back");
+                if (this.readyState == 4 && this.status == 200) {
+                    var section_rotation = this.responseText;
+                    var section_dist = dist_calculator(section_rotation);
+                    document.getElementById("section_dist").innerHTML = section_dist.toFixed(2);
+                }
+            };
+            xhttp.open("GET", "readSection", true); // <-- change on server
+            xhttp.send();
+        }
+
+        setInterval(function () {
+            // Call a function repetatively with 2 Second interval
+            updateLifetimeData();
+            updateSectionData();
+        }, 2000); //2000mSeconds update rate
+    </script>
+</body>
+
+</html>
